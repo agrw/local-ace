@@ -61,7 +61,7 @@ input {
 <script>
 // some static string for versioning
 var programName = "local-ace";
-var version = "v.0.0.12";
+var version = "v.0.0.13";
 document.title = programName;
 
 </script>
@@ -108,13 +108,12 @@ document.title = programName;
 <div id="EditText"/>
 
 
-
 <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.2.6/ace.js" type="text/javascript" charset="utf-8"></script>
 
 <script type="text/javascript">
 
-document.getElementById("SaveAs").value=version;
-document.getElementById("SaveAs").title=version;
+document.getElementById("SaveAs").value = programName + " " + version;
+document.getElementById("SaveAs").title = programName + " " + version;
 
 var editor = ace.edit("EditText");
 editor.setTheme("ace/theme/chrome");
