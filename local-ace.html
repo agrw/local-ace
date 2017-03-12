@@ -104,7 +104,7 @@ document.title = programName;
 <textarea id="XXXEditText" onkeydown="textChanged=true;if(event.keyCode===9 &amp;&amp; !event.shiftKey ){var v=this.value,s=this.selectionStart,e=this.selectionEnd;this.value=v.substring(0, s)+&#39;\t&#39;+v.substring(e);this.selectionStart=this.selectionEnd=s+1;return false;}" style="tab-size: 8;">
 </textarea>
 ---->
-<div id="EditText"/>
+<div id="EditText" />
 
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.2.6/ace.js" type="text/javascript" charset="utf-8"></script>
@@ -117,7 +117,10 @@ document.getElementById("SaveAs").title = programName + " " + version;
 var editor = ace.edit("EditText");
 editor.setTheme("ace/theme/chrome");
   //  editor.getSession().setMode("ace/mode/text");
-
+  editor.getSession().on('change', 
+      function() { textChanged=true; }
+  );
+editor.focus();
 
 var helpText =
 "\n"+
@@ -153,7 +156,7 @@ else
     {
       alert('The File APIs are not fully supported in this browser.');
     }
-
+ 
 
 function getUrlVars()
 {
@@ -373,10 +376,9 @@ if (tabValue == null )
 {
 tabValue = 8;
 }
-else
-{
+
 window.setInterval(SaveText, 400);
-}
+
 
 ChangeTabSize(tabValue);
 oldname=myEdit;
