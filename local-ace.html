@@ -60,7 +60,7 @@ input {
 <script>
 // some static string for versioning
 var programName = "local-ace";
-var version = "v.0.0.13";
+var version = "v.0.0.14";
 document.title = programName;
 
 </script>
@@ -410,6 +410,116 @@ function httpGet(theUrl)
 }
 
 
+        /**
+         * Text area
+         * @type {HTMLElement}
+         */
+        var dropZone = document.getElementById('EditText');
+
+        /**
+         * Set event listeners
+         */
+        dropZone.addEventListener('dragover', dragOver);
+        dropZone.addEventListener('dragend', dragEnd);
+        dropZone.addEventListener('drop', readText, false);
+
+        function isTextSelected(input)
+        {
+           if (editor.getSelectedText()=="")
+           return false;
+           else
+           return true;
+           /**
+           var startPos = input.selectionStart;
+            var endPos = input.selectionEnd;
+            var doc = document.selection;
+
+            if (doc && doc.createRange().text.length != 0)
+            {
+                return true;
+            }
+            else if (!doc && input.value.substring(startPos, endPos).length != 0)
+            {
+                return true;
+            }
+            return false;
+            **/
+        }
+
+        function dragOver(e)
+        {
+
+            if (isTextSelected(document.getElementById("EditText"))) return true;
+
+            e.stopPropagation(); // for some browsers stop redirecting
+            e.preventDefault();
+            return false;
+        }
+
+        function dragEnd(e)
+        {
+
+            if (isTextSelected(document.getElementById("EditText"))) return true;
+
+            e.stopPropagation(); // for some browsers stop redirecting
+            e.preventDefault();
+            return false;
+        }
+
+
+
+        function readText(e)
+        {
+            //return true;
+
+            if (isTextSelected(document.getElementById("EditText"))) return;
+
+            e.stopPropagation(); // for some browsers stop redirecting
+            e.preventDefault();
+
+            //if (isTextSelected(document.getElementById("EditText"))) return true;
+
+            var file,
+                fileData,
+                fileReader,
+                files = e.dataTransfer.files;
+
+            if (!files)
+            {
+                return;
+            }
+
+            //not append
+            dropZone.value = '';
+
+            for (var i = 0; i < files.length && i < 1; i++)
+            {
+                file = files[i];
+
+                FilenameElement.value = file.name;
+
+                //new instance for each file
+                fileReader = new FileReader();
+                fileReader.textArea = dropZone;
+
+                fileData = function(event)
+                {
+                    this.textArea.value += this.result;
+                    textChanged = true;
+                    editor.setValue(this.textArea.value , -1)
+                    SaveText();
+                    SetValuesInUrl(getUrlVars()['tab'], document.getElementById("SaveAs").value);
+                };
+
+                fileReader.addEventListener('loadend', fileData);
+                fileReader.readAsText(file);
+            }
+
+            //     SetValuesInUrl( getUrlVars()['tab'] , document.getElementById("SaveAs").value);
+            //return true;
+        }
+
+   
 
 </script>
 
