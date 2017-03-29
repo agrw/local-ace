@@ -60,7 +60,7 @@ input {
 <script>
 // some static string for versioning
 var programName = "local-ace";
-var version = "v.0.0.15";
+var version = " v.0.0.16";
 document.title = programName;
 
 </script>
@@ -319,25 +319,33 @@ if (myEdit != null)
     
     var newMode =  myEdit.split('.').pop().toLowerCase()
     var convert={"js":"javascript"}
-    convert[myEdit.toLowerCase()]="text"
+    convert[newMode]="text"
 
     editor.session.setMode("ace/mode/" + convert[newMode])
     GetText()
 }
+ else
+        {
+        document.title = "local-ace" ;
+        FilenameElement.value = programName + version;
+        editor.setValue(helpText, -1);
+        textChanged=true;
+        SaveText();
+        }
 
+       
 var tabValue = getUrlVars()['tab']
 if (tabValue == null )
 {
 tabValue = 4  // default tab size
 }
 
-window.setInterval(SaveText, 400)
-
 
 ChangeTabSize(tabValue)
 
 document.title = FilenameElement.value =="" ? document.title : programName 
 
+window.setInterval(SaveText, 400)
 
         /**
          * Text area
