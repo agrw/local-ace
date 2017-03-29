@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 
-<html> 
+<html manifest="local-ace.appcache"> 
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>local-ace</title>
@@ -60,7 +60,7 @@ input {
 <script>
 // some static string for versioning
 var programName = "local-ace";
-var version = "v.0.0.14";
+var version = "v.0.0.15";
 document.title = programName;
 
 </script>
@@ -163,7 +163,7 @@ var urlTab = getUrlVars()['tab']
 if (( urlEdit == null || urlEdit != editValue ) ||
   ( urlTab == null || urlTab != tabValue ))
     {
-    var newURL = location.protocol + '//' + location.host + location.pathname +"?edit="+editValue+"&tab="+tabValue
+    var newURL = location.protocol + '//' + location.host + location.pathname +"#parameters?edit="+editValue+"&tab="+tabValue
     location.assign(newURL)
     }
 }
@@ -386,7 +386,7 @@ document.title = FilenameElement.value =="" ? document.title : programName
 	var reader = new FileReader()
 	reader.onload = function(e) {
                         localStorage.setItem(file.name, e.target.result)
-             			var win = window.open(location.protocol + '//' + location.host + location.pathname + "?edit=" + file.name + "&tab=8" , file.name)
+             			var win = window.open(location.protocol + '//' + location.host + location.pathname + "#parameters?edit=" + file.name + "&tab=8" , file.name)
 	                }
 	reader.readAsText(file)
 
