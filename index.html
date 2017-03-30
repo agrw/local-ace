@@ -328,7 +328,7 @@ if (myEdit != null)
     editor.setValue("",-1)
     
     var newMode =  myEdit.split('.').pop().toLowerCase()
-    var convert={"js":"javascript","xml":"xml","gsl":"xml","c":"c_cpp","cpp":"c_cpp","java":"java","json":"json"}
+    var convert={"js":"javascript","xml":"xml","gsl":"xml","json":"json","htm":"html","html":"html","ts":"typescript","css":"css"}
     if (convert[newMode]== null ) convert[newMode]="text"
 
     editor.session.setMode("ace/mode/" + convert[newMode])
