@@ -1,11 +1,11 @@
 CACHE MANIFEST
-# For text-edit v0.0.17
+# For text-edit v0.0.18
 index.html
 https://ajaxorg.github.io/ace-builds/src/ace.js
-https://ajaxorg.github.io/ace-builds/src//ext-searchbox.js
+https://ajaxorg.github.io/ace-builds/src/ext-searchbox.js
 https://ajaxorg.github.io/ace-builds/src/theme-chrome.js
 https://ajaxorg.github.io/ace-builds/src/ext-settings_menu.js
-https://ajaxorg.github.io/ace-builds/src/mode-html_elixir.js
+https://ajaxorg.github.io/ace-builds/src/mode-html.js
 https://ajaxorg.github.io/ace-builds/src/mode-json.js
 https://ajaxorg.github.io/ace-builds/src/mode-javascript.js
 https://ajaxorg.github.io/ace-builds/src/mode-typescript.js

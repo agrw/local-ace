@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 
-<html> 
+<html manifest="local-ace.appcache"> 
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>local-ace</title>
@@ -55,12 +55,20 @@ input {
 
 .image-overload img:hover { cursor: pointer; opacity: 0.3; filter: alpha(opacity=30);  width: 24px;  }
 
+#editor { position: absolute; top: 0; left: 0; right: 0; bottom: 0;}
+.ace_link_marker {
+      position: absolute;
+      border-bottom: 1px solid blue;
+    }
+ 
+ 
+
 </style>
 
 <script>
 // some static string for versioning
 var programName = "local-ace";
-var version = "v.0.0.14";
+var version = " v.0.0.18";
 document.title = programName;
 
 </script>
@@ -71,33 +79,29 @@ document.title = programName;
 
 <div style="vertical-align: text-top; cursor: pointer; height: 24px;">
 
-&nbsp;
+        &nbsp;&nbsp;
 
-<!--- New File ▯  -->
-<span title="New" onclick="newText()" class="image-overload"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsQAAA7EAZUrDhsAAABiSURBVEhLY/wPBAw0BExQmmZgBFrw+/dvMP3z5084Gx/AGcmMjIxQFn4A0g5SiyutUC2IcDmIqnGAzRKqRzK6JVSJA3yAYguwAWQjB18+IBWMWkAQjFpAEIxaQBAMdQsYGAAfaiTzWBgUkQAAAABJRU5ErkJggg==" alt="New"> </span>
+        <!--- Read File --->
+        <span class="image-overload">
+        <label for="files" alt="Open1">
 
-
-<!--- Open File 📂 --->
-<span class="image-overload">
-    <label for="files" alt="Open1">
-        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsQAAA7EAZUrDhsAAAB2SURBVEhL7ZNBDoAgDARb//9ndQmYGpEidm+dCyGBHQpF9xMhstWRRgpcUuBS/oGq1mmfP19lqgLvACOmKviKrZjyBvbA2aYulDZFXtvjCrBwpcuaYHhFq+GWV0FEOOgKosLBQxAZDm6C6HBwCRjhoAhY4SIiB67pOx7nCaKEAAAAAElFTkSuQmCC" title="Open">
-    </label>
-    <input id="files" onchange="loadFileAsText()" type="file" alt="Open3">
-</span>
+        <img src="data:image/false;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAOxAAADsQBlSsOGwAAAHVJREFUSIntlUsKwCAMRG3p/a+sm1pEJsmYWHCRAVd+Hi9GLCVzYuo7tuQSANI8C/723QY0bIIM0OHaOrRHNUCHIhPKTgNoELp0EmDspNCdWAY9bggLmCF0HnKdu10Zg9BbYAxcpelZuYMEJADHatPwf/C7QQMClxIkKZgySQAAAABJRU5ErkJggg==" title="Read from file">
 
 
-<!--- Save File 💾  -->
-<span title="Save" onclick="saveTextAsFile()" class="image-overload"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsQAAA7EAZUrDhsAAACdSURBVEhL7ZPdCoAgDIVnEhH0/i/ZVZf9QDlSnKJOLOnCPjiUsXWUM8WpgIp0+lmN34DFCVkIod8sOTNg+kK1r54gtMEiA/yRkY//rYkp2lV62y0NhmnEwU5RCdS4iQyeEc3gXBeAgw8RpAQYJreXZBA3IEU5FBnQdQzT/tkJkiFjE6fZ3r8gSQPcCaex18UKXPt8F/ITqEHliwZwAThBgOefkonQAAAAAElFTkSuQmCC" alt="Save"> </span>
+        </label>
+        <input id="files" onchange="loadFileAsText()" type="file" alt="Open3">
+        </span>
 
+        <!--- Write File -->
+        <span title="Write to file" onclick="saveTextAsFile()" class="image-overload">
+        <img src="data:image/false;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAOxAAADsQBlSsOGwAAAHVJREFUSIntlcESABEMQ2vH//+yPa2hqynCrTkayWuVIRJylEh/8bIfEuAWONqAqkJe7TvSgRVelYFpdj5teNIwtgMd/hMDsMI70C7Aq7yu7QCs8CKDYa8C3DNnAUvhIviaUsGfTj20AATgotA7mP14oK538AKszA4wHi+hIAAAAABJRU5ErkJggg==" alt="Write to file"> </span>
 
-<!--- Help ? -->
-<span title="Help" onclick="Help();" class="image-overload"> <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAOxAAADsQBlSsOGwAAAJFJREFUSEtj/A8EDDQETFCaZmDoW8AIxFSLA2zRORoHBAFeCwQVvMHhCsPkALyRjM1QRkaQFuyApEiGKQYZCMMgQKpPSI6D51CaWEBSPkD2FTZAUhChA5DmN0AaXxxgA4Qt4HOGu0yURMNBgLAFv19CGeQBkuKAECA7DkAasWkmBpCcTEkFgyOIKAGjFhAADAwAJC09n5lOacMAAAAASUVORK5CYII=" alt="Help"></span>
+        &nbsp; 
 
+        <!--- buffer being edited -->
+        <input title="buffer being edited" id="SaveAs" onchange="GetText();" readonly="">
 
-<!--- name of file/buffer being edited -->
-<input id="SaveAs" onchange="GetText();" readonly="">
-
-<hr>
+        <hr>
 </div>
 
 <!----
@@ -107,44 +111,39 @@ document.title = programName;
 <div id="EditText" />
 
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.2.6/ace.js" type="text/javascript" charset="utf-8"></script>
+<!---- script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.2.6/ace.js" type="text/javascript" charset="utf-8"></script ---->
 
+<script src="https://ajaxorg.github.io/ace-builds/src/ace.js"></script> 
+ 
 <script type="text/javascript">
 
-document.getElementById("SaveAs").value = programName + " " + version;
-document.getElementById("SaveAs").title = programName + " " + version;
+document.getElementById("SaveAs").value = programName + " " + version
 
-var editor = ace.edit("EditText");
-editor.setTheme("ace/theme/chrome");
-  //  editor.getSession().setMode("ace/mode/text");
-  editor.getSession().on('change', 
+var editor = ace.edit("EditText")
+editor.setTheme("ace/theme/chrome")
+editor.getSession().on('change', 
       function() { textChanged=true; }
-  );
-editor.focus();
+  )
+editor.focus()
 
 var helpText =
 "\n"+
 " " + programName +" " + version + "\n"+
 "\n"+
-" This is a simple text editor in a browser. \n"+
+" This is local ace, the ace editor for local files. \n"+
 "\n"+
 " You can \n"+
-"        create a new file, \n"+
-"        open a file, \n"+
-"        save a file,\n"+
-"        edit a file,\n"+
-"        show this help and \n"+
-"        drag & drop a file to edit.\n"+
+"        read a file,\n"+
+"        write a file,\n"+
+"        edit buffer \n"+
+"        drag & drop local files to edit.\n"+
+"        double click on website url's to goto that website.\n"+
 "\n"+
 " The tab size is set in url using 'tab='.\n"+
 "\n"+
-" All other functionality is provided by browser.\n"+
-"\n"+
-" Click on help icon again to return to editing.\n"+
-"\n"+
-" Enjoy, AGRW";
-
-var currentText="";
+" All other functionality is provided by ace - https://ace.c9.io/#nav=about \n"+
+" Default keys short cuts - https://github.com/ajaxorg/ace/wiki/Default-Keyboard-Shortcuts \n"+
+" Enjoy"
 
 
 // Check for the various File API support.
@@ -154,7 +153,7 @@ if (window.File && window.FileReader && window.FileList && window.Blob)
     }
 else
     {
-      alert('The File APIs are not fully supported in this browser.');
+      alert('The File APIs are not fully supported in this browser.')
     }
  
 
@@ -162,55 +161,55 @@ function getUrlVars()
 {
 var vars = {};
 var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
-vars[key] = unescape(value);
-});
-return vars;
+vars[key] = unescape(value)
+})
+return vars
 }
 
 function SetValuesInUrl(tabValue,editValue)
 {
-var urlEdit = getUrlVars()['edit'];
-var urlTab = getUrlVars()['tab'];
+var urlEdit = getUrlVars()['edit']
+var urlTab = getUrlVars()['tab']
 if (( urlEdit == null || urlEdit != editValue ) ||
   ( urlTab == null || urlTab != tabValue ))
     {
-    var newURL = location.protocol + '//' + location.host + location.pathname +"?edit="+editValue+"&tab="+tabValue;
-    location.assign(newURL);
+    var newURL = location.protocol + '//' + location.host + location.pathname +"#parameters?edit="+editValue+"&tab="+tabValue
+    location.assign(newURL)
     }
 }
 
-var textChanged=false;
-var enableLogging=false;
+var textChanged=false
+var enableLogging=false
 
 function DebugLog(string)
 {
-if (enableLogging) console.log(string);
+if (enableLogging) console.log(string)
 }
 
 
 function saveTextAsFile()
 {
-    var textToSave = editor.getValue( ); //  document.getElementById("EditText").value;
-    var textToSaveAsBlob = new Blob([textToSave], {type:"text/plain"});
-    textChanged=true;SaveText(); // force save to local buffer before save
-    var fileNameToSaveAs = document.getElementById("SaveAs").value;
+    var textToSave = editor.getValue( ); //  document.getElementById("EditText").value
+    var textToSaveAsBlob = new Blob([textToSave], {type:"text/plain"})
+    textChanged=true;SaveText()  // force save to local buffer before save
+    var fileNameToSaveAs = document.getElementById("SaveAs").value
 
     if (navigator.msSaveBlob)
         { // IE10+ : (has Blob, but not a[download] or URL)
-         return navigator.msSaveBlob(textToSaveAsBlob , fileNameToSaveAs );
+         return navigator.msSaveBlob(textToSaveAsBlob , fileNameToSaveAs )
         }
     else
         {
-        var textToSaveAsURL = window.URL.createObjectURL(textToSaveAsBlob);
-        var downloadLink = document.createElement("a");
-        downloadLink.download = fileNameToSaveAs;
-        downloadLink.innerHTML = "Download File";
-        downloadLink.href = textToSaveAsURL;
-        downloadLink.onclick = destroyClickedElement;
-        downloadLink.style.display = "none";
-        document.body.appendChild(downloadLink);
+        var textToSaveAsURL = window.URL.createObjectURL(textToSaveAsBlob)
+        var downloadLink = document.createElement("a")
+        downloadLink.download = fileNameToSaveAs
+        downloadLink.innerHTML = "Download File"
+        downloadLink.href = textToSaveAsURL
+        downloadLink.onclick = destroyClickedElement
+        downloadLink.style.display = "none"
+        document.body.appendChild(downloadLink)
 
-        downloadLink.click();
+        downloadLink.click()
     }
 
 }
@@ -218,31 +217,31 @@ function saveTextAsFile()
 
 function destroyClickedElement(event)
 {
-    document.body.removeChild(event.target);
+    document.body.removeChild(event.target)
 }
 
 
 function SetElementValueFromItemValue(elementName, itemName)
 {
-var Element = document.getElementById(elementName);
-var Item = document.getElementById(itemName);
+var Element = document.getElementById(elementName)
+var Item = document.getElementById(itemName)
 if ( localStorage.getItem(Item.value) != null)
     {
-    var newvalue = localStorage.getItem(Item.value);
-    editor.setValue(newvalue,-1); //Element.value = localStorage.getItem(Item.value);  
+    var newvalue = localStorage.getItem(Item.value)
+    editor.setValue(newvalue,-1); //Element.value = localStorage.getItem(Item.value)
     }
-DebugLog("getItem( "+Item.value+" )= "+editor.getValue());
+DebugLog("getItem( "+Item.value+" )= "+editor.getValue())
 }
 
 
 function GetText()
 {
-SetElementValueFromItemValue("EditText","SaveAs");
-textChanged=true;
-var tabValue = getUrlVars()['tab'];
-if (tabValue == null ) tabValue = 8;
+SetElementValueFromItemValue("EditText","SaveAs")
+textChanged=true
+var tabValue = getUrlVars()['tab']
+if (tabValue == null ) tabValue = 4;
 
-SetValuesInUrl(tabValue, document.getElementById("SaveAs").value);
+SetValuesInUrl(tabValue, document.getElementById("SaveAs").value)
 
 }
 
@@ -253,60 +252,48 @@ function SaveText()
 
 if (textChanged)
     {
-    var SaveAsValue= document.getElementById("SaveAs").value;
+    var SaveAsValue= document.getElementById("SaveAs").value
 
     try
         {
-        var newvalue = editor.getValue();
-        localStorage.setItem( SaveAsValue, newvalue );
+        var newvalue = editor.getValue()
+        localStorage.setItem( SaveAsValue, newvalue )
         }
     catch (e)
         {
          // if (e == QUOTA_EXCEEDED_ERR)  QuotaExceededError
          if (e == QuotaExceededError) // IE error message?? ***FIXME***
             {
-            alert(e+'Quota exceeded!'); //data wasn't successfully saved due to quota exceed so throw an error
+            alert(e+'Quota exceeded!')  //data wasn't successfully saved due to quota exceed so throw an error
             }
         }
 
-    DebugLog("setItem( "+SaveAsValue+", "+editor.getValue()+ " )");
-    textChanged=false;
+    DebugLog("setItem( "+SaveAsValue+", "+editor.getValue()+ " )")
+    textChanged=false
     }
 
 }
 
-function newText()
-{
-    // clear edit name and value
-    editor.setValue("",-1); // document.getElementById("EditText").value = "";
-    document.getElementById("SaveAs").value= programName + " " + version ;
-    // setup new text buffer
-    textChanged=true;
-    SaveText();
-    GetText();
-}
-
-
-
 function loadFileAsText()
 {
-    var fileToLoad = document.getElementById("files").files[0];
-    var filename= (document.getElementById("files").value).split('\\').pop().split('/').pop();
+    var fileToLoad = document.getElementById("files").files[0]
+    var filename= (document.getElementById("files").value).split('\\').pop().split('/').pop()
 
-    document.getElementById("SaveAs").value =filename;
+    document.getElementById("SaveAs").value =filename
 
     var fileReader = new FileReader();
     fileReader.onload = function(fileLoadedEvent)
     {
-        var textFromFileLoaded = fileLoadedEvent.target.result;
-        editor.setValue(textFromFileLoaded,-1); // document.getElementById("EditText").value = textFromFileLoaded;
+        var textFromFileLoaded = fileLoadedEvent.target.result
+        editor.setValue(textFromFileLoaded,-1)
+
         localStorage.setItem(filename, textFromFileLoaded);
-        var tabValue = getUrlVars()['tab'];
-        if (tabValue == null) tabValue=8;
-        SetValuesInUrl( tabValue , document.getElementById("SaveAs").value);
-        document.title=document.getElementById("SaveAs").value;
-    };
-    fileReader.readAsText(fileToLoad, "UTF-8");
+        var tabValue = getUrlVars()['tab']
+        if (tabValue == null) tabValue=4;
+        SetValuesInUrl( tabValue , document.getElementById("SaveAs").value)
+        document.title=document.getElementById("SaveAs").value
+    }
+    fileReader.readAsText(fileToLoad, "UTF-8")
 
 }
 
@@ -314,212 +301,293 @@ function loadFileAsText()
 //Set your tab size here, and in the CSS.
 function ChangeTabSize(value)
 {
-//***FIXME***
-//var textarea = document.getElementById("EditText");
-//textarea.style.tabSize=value;
-//textarea.style.MozTabSize =value;
-//textarea.style.OTabSize =value;
-//
-SetValuesInUrl(value, document.getElementById("SaveAs").value);
+editor.session.setTabSize(value)
+SetValuesInUrl(value, document.getElementById("SaveAs").value)
 }
 
-
-function Help()
-{
- var win = window.open("https://github.com/ajaxorg/ace/wiki/Default-Keyboard-Shortcuts", '_blank');
-  win.focus();
-/***  
-var filenameElement=document.getElementById("SaveAs");
-if (filenameElement.value == "help")
-    {
-    filenameElement.value=getUrlVars()['edit'];
-    //***FIXME*** document.getElementById("EditText").readOnly = false;
-    editor.setValue(currentText,-1); // document.getElementById("EditText").value = currentText;
-    }
-else
-    {
-    filenameElement.value = "help";
-    //***FIXME***  document.getElementById("EditText").readOnly = true;
-    currentText = editor.getValue(); // currentText = document.getElementById("EditText").value;
-    editor.setValue(helpText,-1); // document.getElementById("EditText").value = helpText;
-    }
-***/
-}
 
 function SetTab() 
 {
-    var tabURLValue = getUrlVars()['tab'];
-    if (tabURLValue == null)
-        tabURLValue = 8;
+    var tabURLValue = getUrlVars()['tab']
+    
+    if (tabURLValue == null) tabURLValue = 4
 
-    var tabValue = prompt("Set Tab", tabURLValue );
+    var tabValue = prompt("Set Tab", tabURLValue )
 
-    if (tabValue != null)
-    {
-        ChangeTabSize(tabValue);
-    }
+    if (tabValue != null)  ChangeTabSize(tabValue)
+ 
 }
 
 
-var FilenameElement = document.getElementById("SaveAs");
+var FilenameElement = document.getElementById("SaveAs")
 
-var myEdit = getUrlVars()['edit'];
+var myEdit = getUrlVars()['edit']
 if (myEdit != null)
 {
-    FilenameElement.value =  myEdit;
-    editor.setValue("",-1); // document.getElementById("EditText").value = "";
-    GetText();
-}
+    FilenameElement.value =  myEdit
+    editor.setValue("",-1)
+    
+    var newMode =  myEdit.split('.').pop().toLowerCase()
+    var convert={"js":"javascript","xml":"xml","gsl":"xml","json":"json","htm":"html","html":"html","ts":"typescript","css":"css"}
+    if (convert[newMode]== null ) convert[newMode]="text"
 
-var tabValue = getUrlVars()['tab'];
+    editor.session.setMode("ace/mode/" + convert[newMode])
+    GetText()
+}
+ else
+        {
+        document.title = "local-ace" ;
+        FilenameElement.value = programName + version;
+        editor.setValue(helpText, -1);
+        textChanged=true;
+        SaveText();
+        }
+
+       
+var tabValue = getUrlVars()['tab']
 if (tabValue == null )
 {
-tabValue = 8;
+tabValue = 4  // default tab size
 }
 
-window.setInterval(SaveText, 400);
 
+ChangeTabSize(tabValue)
 
-ChangeTabSize(tabValue);
-oldname=myEdit;
+document.title = FilenameElement.value =="" ? document.title : programName 
 
-document.title = FilenameElement.value =="" ? document.title : programName ;
-
-
-
-// get & store help text local storage
-function httpGet(theUrl)
-{
-    if (window.XMLHttpRequest)
-    {// code for IE7+, Firefox, Chrome, Opera, Safari
-        xmlhttp=new XMLHttpRequest();
-    }
-    else
-    {// code for IE6, IE5
-        xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
-    }
-    xmlhttp.onreadystatechange=function()
-    {
-        if (xmlhttp.readyState==4 && xmlhttp.status==200)
-        {
-            localStorage.setItem( "help.txt", xmlhttp.responseText );
-        }
-    }
-    xmlhttp.open("GET", theUrl, false );
-    xmlhttp.send();
-}
-
+window.setInterval(SaveText, 400)
 
         /**
          * Text area
          * @type {HTMLElement}
          */
-        var dropZone = document.getElementById('EditText');
+        var dropZone = document.getElementById('EditText')
 
         /**
          * Set event listeners
          */
-        dropZone.addEventListener('dragover', dragOver);
-        dropZone.addEventListener('dragend', dragEnd);
-        dropZone.addEventListener('drop', readText, false);
+        dropZone.addEventListener('dragover', dragOver)
+        dropZone.addEventListener('dragend', dragEnd)
+        dropZone.addEventListener('drop', readText, false)
 
         function isTextSelected(input)
         {
-           if (editor.getSelectedText()=="")
-           return false;
-           else
-           return true;
-           /**
-           var startPos = input.selectionStart;
-            var endPos = input.selectionEnd;
-            var doc = document.selection;
-
-            if (doc && doc.createRange().text.length != 0)
-            {
-                return true;
-            }
-            else if (!doc && input.value.substring(startPos, endPos).length != 0)
-            {
-                return true;
-            }
-            return false;
-            **/
+           if (editor.getSelectedText()=="") return false
+           else                              return true;
         }
 
         function dragOver(e)
         {
 
-            if (isTextSelected(document.getElementById("EditText"))) return true;
+            if (isTextSelected(document.getElementById("EditText"))) return true
 
-            e.stopPropagation(); // for some browsers stop redirecting
-            e.preventDefault();
-            return false;
+            e.stopPropagation()  // for some browsers stop redirecting
+            e.preventDefault()
+            return false
         }
 
         function dragEnd(e)
         {
 
-            if (isTextSelected(document.getElementById("EditText"))) return true;
+            if (isTextSelected(document.getElementById("EditText"))) return true
 
-            e.stopPropagation(); // for some browsers stop redirecting
-            e.preventDefault();
-            return false;
+            e.stopPropagation() // for some browsers stop redirecting
+            e.preventDefault()
+            return false
         }
 
 
 
-        function readText(e)
+	// get file information
+	function GetFile(file) {
+
+	var reader = new FileReader()
+	reader.onload = function(e) {
+                        localStorage.setItem(file.name, e.target.result)
+             			var win = window.open(location.protocol + '//' + location.host + location.pathname + "#parameters?edit=" + file.name + "&tab=8" , file.name)
+	                }
+	reader.readAsText(file)
+
+	}
+
+
+    function readText(e)
         {
-            //return true;
 
-            if (isTextSelected(document.getElementById("EditText"))) return;
+            if (isTextSelected(document.getElementById("EditText"))) return
 
-            e.stopPropagation(); // for some browsers stop redirecting
-            e.preventDefault();
+            e.stopPropagation() // for some browsers stop redirecting
+            e.preventDefault()
 
-            //if (isTextSelected(document.getElementById("EditText"))) return true;
-
-            var file,
-                fileData,
-                fileReader,
-                files = e.dataTransfer.files;
+            var files = e.dataTransfer.files
 
             if (!files)
             {
-                return;
+                return
             }
 
-            //not append
-            dropZone.value = '';
-
-            for (var i = 0; i < files.length && i < 1; i++)
+           
+            for (var i = 0; i < files.length; i++)
             {
-                file = files[i];
-
-                FilenameElement.value = file.name;
-
-                //new instance for each file
-                fileReader = new FileReader();
-                fileReader.textArea = dropZone;
-
-                fileData = function(event)
-                {
-                    this.textArea.value += this.result;
-                    textChanged = true;
-                    editor.setValue(this.textArea.value , -1)
-                    SaveText();
-                    SetValuesInUrl(getUrlVars()['tab'], document.getElementById("SaveAs").value);
-                };
-
-                fileReader.addEventListener('loadend', fileData);
-                fileReader.readAsText(file);
+                GetFile(files[i])
             }
-
-            //     SetValuesInUrl( getUrlVars()['tab'] , document.getElementById("SaveAs").value);
-            //return true;
+ 
         }
+        
+/////
 
-   
+define("hoverlink", [], function(require, exports, module) {
+"use strict";
+
+var oop = require("ace/lib/oop");
+var event = require("ace/lib/event");
+var Range = require("ace/range").Range;
+var EventEmitter = require("ace/lib/event_emitter").EventEmitter;
+
+var HoverLink = function(editor) {
+    if (editor.hoverLink)
+        return;
+    editor.hoverLink = this;
+    this.editor = editor;
+
+    this.update = this.update.bind(this);
+    this.onMouseMove = this.onMouseMove.bind(this);
+    this.onMouseOut = this.onMouseOut.bind(this);
+    this.onDoubleClick = this.onDoubleClick.bind(this);
+    event.addListener(editor.renderer.scroller, "mousemove", this.onMouseMove);
+    event.addListener(editor.renderer.content, "mouseout", this.onMouseOut);
+    event.addListener(editor.renderer.content, "dblclick", this.onDoubleClick);
+};
+
+(function(){
+    oop.implement(this, EventEmitter);
+    
+    this.token = {};
+    this.range = new Range();
+
+    this.update = function() {
+        this.$timer = null;
+        var editor = this.editor;
+        var renderer = editor.renderer;
+        
+        var canvasPos = renderer.scroller.getBoundingClientRect();
+        var offset = (this.x + renderer.scrollLeft - canvasPos.left - renderer.$padding) / renderer.characterWidth;
+        var row = Math.floor((this.y + renderer.scrollTop - canvasPos.top) / renderer.lineHeight);
+        var col = Math.round(offset);
+
+        var screenPos = {row: row, column: col, side: offset - col > 0 ? 1 : -1};
+        var session = editor.session;
+        var docPos = session.screenToDocumentPosition(screenPos.row, screenPos.column);
+        
+        var selectionRange = editor.selection.getRange();
+        if (!selectionRange.isEmpty()) {
+            if (selectionRange.start.row <= row && selectionRange.end.row >= row)
+                return this.clear();
+        }
+        
+        var line = editor.session.getLine(docPos.row);
+        if (docPos.column == line.length) {
+            var clippedPos = editor.session.documentToScreenPosition(docPos.row, docPos.column);
+            if (clippedPos.column != screenPos.column) {
+                return this.clear();
+            }
+        }
+        
+        var token = this.findLink(docPos.row, docPos.column);
+        this.link = token;
+        if (!token) {
+            return this.clear();
+        }
+        this.isOpen = true
+        editor.renderer.setCursorStyle("pointer");
+        
+        session.removeMarker(this.marker);
+        
+        this.range =  new Range(token.row, token.start, token.row, token.start + token.value.length);
+        this.marker = session.addMarker(this.range, "ace_link_marker", "text", true);
+    };
+    
+    this.clear = function() {
+        if (this.isOpen) {
+            this.editor.session.removeMarker(this.marker);
+            this.editor.renderer.setCursorStyle("");
+            this.isOpen = false;
+        }
+    };
+    
+    this.getMatchAround = function(regExp, string, col) {
+        var match;
+        regExp.lastIndex = 0;
+        string.replace(regExp, function(str) {
+            var offset = arguments[arguments.length-2];
+            var length = str.length;
+            if (offset <= col && offset + length >= col)
+                match = {
+                    start: offset,
+                    value: str
+                };
+        });
+    
+        return match;
+    };
+    
+    this.onDoubleClick = function() {
+        if (this.link) {
+            editor.clearSelection();
+
+            this.link.editor = this.editor;
+            this._signal("open", this.link);
+            this.clear()
+        }
+    };
+    
+    this.findLink = function(row, column) {
+        var editor = this.editor;
+        var session = editor.session;
+        var line = session.getLine(row);
+        
+        var match = this.getMatchAround(/https?:\/\/[^\s"']+/g, line, column);
+        if (!match)
+            return;
+        
+        match.row = row;
+        return match;
+    };
+    
+    this.onMouseMove = function(e) {
+        if (this.editor.$mouseHandler.isMousePressed) {
+            if (!this.editor.selection.isEmpty())
+                this.clear();
+            return;
+        }
+        this.x = e.clientX;
+        this.y = e.clientY;
+        this.update();
+    };
+
+    this.onMouseOut = function(e) {
+        this.clear();
+    };
+
+    this.destroy = function() {
+        this.onMouseOut();
+        event.removeListener(this.editor.renderer.scroller, "mousemove", this.onMouseMove);
+        event.removeListener(this.editor.renderer.content, "mouseout", this.onMouseOut);
+        delete this.editor.hoverLink;
+    };
+
+}).call(HoverLink.prototype);
+
+exports.HoverLink = HoverLink;
+
+});
+
+HoverLink = require("hoverlink").HoverLink
+editor.hoverLink = new HoverLink(editor);
+editor.hoverLink.on("open", function(link) {
+    var win = window.open(link.value);
+})
+        
 
 </script>
 
