@@ -7,4 +7,5 @@ The tab size is set in url config using 'tab=number'.
 The text wrapping is set in url config using 'wrap=true or false'.
 
 Editing functionality is provided by ace - https://ace.c9.io/#nav=about 
+
 Default keys short cuts - https://github.com/ajaxorg/ace/wiki/Default-Keyboard-Shortcuts 
