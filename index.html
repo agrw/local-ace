@@ -5,6 +5,7 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <title>local-ace</title>
+ 
     <style>
         * {
             margin: 0;
@@ -50,16 +51,21 @@
             border: 2px solid black;
             border-radius: 3px;
         }
+
+        .span {
+            text-align: center;
+        }
+
     </style>
 </head>
 
 <body>
 
-    <p style="cursor: pointer; height: 24px;font-size:14.0pt;margin-bottom:2px;margin-top: 4px;">
+    <p style="cursor: pointer; height: 24px;font-size:14.0pt;margin-bottom:2px;margin-top: 4px; ">
         &nbsp;&nbsp;
 
-        <span class="border" id="ReadFile" title="Read file">↘</span>
-        <span class="border" id="WriteFile" title="Write file">↗</span>
+        <span class="border" id="ReadFile" title="Read file">&LowerRightArrow;</span>
+        <span class="border" id="WriteFile" title="Write file">&UpperRightArrow;</span>
 
         <a id="invisibleDownload" download></a>
         <input type="file" id="invisiblePicker">
@@ -81,6 +87,8 @@
     document.title = programName;
 
     document.getElementById("BufferName").value = programName + " " + version
+    document.head.appendChild(Object.assign(document.createElement("link"), {rel: "icon", href: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🖋</text></svg>"}))
+
 
     var editor = ace.edit("EditText")
     editor.setTheme("ace/theme/chrome")
