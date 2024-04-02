@@ -7,14 +7,10 @@
     <title>local-ace</title>
  
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-        }
 
         #EditText {
             position: absolute;
-            top: 32px;
+            top: 34px;
             right: 0;
             bottom: 0;
             left: 0;
@@ -50,9 +46,6 @@
         .border {
             border: 2px solid black;
             border-radius: 3px;
-        }
-
-        .span {
             text-align: center;
         }
 
@@ -61,7 +54,7 @@
 
 <body>
 
-    <p style="cursor: pointer; height: 24px;font-size:14.0pt;margin-bottom:2px;margin-top: 4px; ">
+    <p style="cursor: pointer; height: 26px;font-size:14.0pt;margin-bottom:4px;margin-top: 0px; font-family: Verdana, sans-serif;">
         &nbsp;&nbsp;
 
         <span class="border" id="ReadFile" title="Read file">&LowerRightArrow;</span>
@@ -87,7 +80,7 @@
     document.title = programName;
 
     document.getElementById("BufferName").value = programName + " " + version
-    document.head.appendChild(Object.assign(document.createElement("link"), {rel: "icon", href: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='110'>e</text></svg>"}))
+    document.head.appendChild(Object.assign(document.createElement("link"), {rel: "icon", href: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='110'>✒</text></svg>"}))
 
 
     var editor = ace.edit("EditText")
