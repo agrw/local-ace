@@ -5,12 +5,16 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <title>local-ace</title>
- 
+
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
 
         #EditText {
             position: absolute;
-            top: 34px;
+            top: 35px;
             right: 0;
             bottom: 0;
             left: 0;
@@ -18,7 +22,7 @@
 
         input {
             border: none;
-            font-size: 16px;
+            font-size: 18px;
             background: transparent;
         }
 
@@ -28,6 +32,7 @@
             left: 0;
             right: 0;
             bottom: 0;
+            font-size: 16px;
         }
 
         .ace_link_marker {
@@ -48,13 +53,13 @@
             border-radius: 3px;
             text-align: center;
         }
-
     </style>
 </head>
 
 <body>
 
-    <p style="cursor: pointer; height: 26px;font-size:14.0pt;margin-bottom:4px;margin-top: 0px; font-family: Verdana, sans-serif;">
+    <p
+        style="cursor: pointer; height: 25px;font-size:16.0pt; margin: 4px 0px 4px 0px; font-family: Verdana, sans-serif;">
         &nbsp;&nbsp;
 
         <span class="border" id="ReadFile" title="Read file">&LowerRightArrow;</span>
@@ -64,11 +69,13 @@
         <input type="file" id="invisiblePicker">
         &nbsp;
 
-        <input title="Filename (editable)" id="BufferName" size="45" onchange="GetText(); SetValuesInUrl(tabValue, document.getElementById('BufferName').value);">
+        <input title="Filename (editable)" id="BufferName" size="45"
+            onchange="GetText(); SetValuesInUrl(tabValue, document.getElementById('BufferName').value);">
 
     </p>
 
     <hr>
+
     <div id="EditText"></div>
 </body>
 
@@ -80,7 +87,7 @@
     document.title = programName;
 
     document.getElementById("BufferName").value = programName + " " + version
-    document.head.appendChild(Object.assign(document.createElement("link"), {rel: "icon", href: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='110'>✒</text></svg>"}))
+    document.head.appendChild(Object.assign(document.createElement("link"), { rel: "icon", href: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='110'>✒</text></svg>" }))
 
 
     var editor = ace.edit("EditText")
@@ -118,7 +125,7 @@
         var urlEdit = getUrlVars()['edit']
         var urlTab = getUrlVars()['tab']
 
-        if ((urlEdit == null || urlEdit != editValue) || (urlTab == null || urlTab != tabValue) ) {
+        if ((urlEdit == null || urlEdit != editValue) || (urlTab == null || urlTab != tabValue)) {
             var newURL = location.protocol + '//' + location.host + location.pathname + "#config?edit=" + editValue + "&tab=" + tabValue
             location.assign(newURL)
         }
@@ -331,7 +338,7 @@
 
     // Check for the various File API support.
     if (!('chooseFileSystemEntries' in window ||
-         'showOpenFilePicker' in window)) {
+        'showOpenFilePicker' in window)) {
         alert('Unable to read or write files, the file APIs are not supported in this browser.')
     }
 
