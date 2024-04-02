@@ -4,7 +4,6 @@ This is local ace, the ace editor for local files.
 You can read, write and edit a text file from your browser.
 
 The tab size is set in url config using 'tab=number'.
-The text wrapping is set in url config using 'wrap=true or false'.
 
 Editing functionality is provided by ace - https://ace.c9.io/#nav=about 
 
