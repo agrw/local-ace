@@ -1,349 +1,83 @@
 <!DOCTYPE html>
 
-<html manifest="local-ace.appcache" lang="en">
+<html lang="en">
 
 <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <title>local-ace</title>
 
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-        }
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,
+				initial-scale=1">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
 
-        #EditText {
-            position: absolute;
-            top: 36px;
-            right: 0;
-            bottom: 0;
-            left: 0;
-        }
+    <meta name="apple-mobile-web-app-status-bar" content="#aa7700">
+    <meta name="theme-color" content="black">
 
-        input {
-            border: none;
-            font-size: 18px;
-            background: transparent;
-        }
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/png" href="./images/favicon.png">
+    <meta name="theme-color" content="#1a237e">
+    <link rel="apple-touch-icon" sizes="192x192" href="./images/android-chrome-192x192.png">
 
-        #editor {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            font-size: 16px;
-        }
+    <meta http-equiv="Cache-control" content="public">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Progressive Web App to edit text.">
 
-        .ace_link_marker {
-            position: absolute;
-            border-bottom: 1px solid blue;
-        }
+    <link rel="apple-touch-icon" sizes="180x180" href="./images/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="./images/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="./images/favicon-16x16.png">
 
-        #invisibleDownload {
-            display: none;
-        }
-
-        #invisiblePicker {
-            display: none;
-        }
-
-        .border {
-            border: 2px solid black;
-            border-radius: 3px;
-            text-align: center;
-        }
-    </style>
+    <link rel="stylesheet" type="text/css" href="./localapp.css" />
 </head>
 
 <body>
+    <p style="cursor:pointer;height:26px;font-size:16.0pt;margin:2px 0px 6px 0px;font-family:Verdana,sans-serif;">
 
-    <p
-        style="cursor: pointer; height: 25px;font-size:16.0pt; margin: 4px 0px 6px 0px; font-family: Verdana, sans-serif;">
-        &nbsp;&nbsp;
+        &nbsp;
+        <span class="menu-btn">
+            <button title="Menu" style="font-size:18.0pt;height:25px;"
+                class="unstyled-button">&thinsp;≡&thinsp;</button>
+            <span class="menu-content">
+                <label class="menu-input" for="TabNumber">Tab size </label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                <input class="menu-input" type="number" id="TabNumber" name="TabNumber" min="1" max="32" onchange="SetValuesInUrl(document.getElementById('TabNumber').value , document.getElementById('FileName').value);
+                editor.session.setTabSize(document.getElementById('TabNumber').value);">
+                <br>
+                <label class="menu-input" for="WrapToggle">Wrap enable </label>&nbsp;
+                <input class="menu-input" style="vertical-align: bottom;" type="checkbox" name="WrapToggle"
+                    id="WrapToggle"
+                    onchange="editor.session.setUseWrapMode(document.getElementById('WrapToggle').checked )">
+                <br>
+                <a id="HelpAbout" target="_blank" class="links" href="">Help/About</a>
+            </span>
+        </span>
 
-        <span class="border" id="ReadFile" title="Read file">&LowerRightArrow;</span>
-        <span class="border" id="WriteFile" title="Write file">&UpperRightArrow;</span>
-
-        <a id="invisibleDownload" download></a>
-        <input type="file" id="invisiblePicker">
+        <span id="ReadFile" title="Read file">&hairsp;↘</span>
+        <span id="WriteFile" title="Write file">&hairsp;↗</span>
         &nbsp;
 
-        <input title="Filename (editable)" id="BufferName" size="45"
-            onchange="GetText(); SetValuesInUrl(tabValue, document.getElementById('BufferName').value);">
-
+        <input title="Filename (editable)" id="FileName" size="45" style="top:6px; position: absolute;"
+            onchange="GetText(); SetValuesInUrl(tabValue, document.getElementById('FileName').value);">
     </p>
-
     <hr>
 
+    <a style="opacity:0" id="aDownloadFile" download></a>
+    <input style="opacity:0" type="file" id="filePicker">
+
     <div id="EditText"></div>
+
 </body>
 
-<script src="https://ajaxorg.github.io/ace-builds/src/ace.js"></script>
-<script type="text/javascript">
+<script src="./ace-builds/src-min-noconflict/ace.js" type="text/javascript" charset="utf-8"></script>
+<script src="./localfile.js" inline></script>
+<script src="./localapp.js" type="text/javascript" charset="utf-8"></script>
 
-    var programName = "local-ace";
-    var version = " v.0.0.40";
-    document.title = programName;
+<script>
 
-    document.getElementById("BufferName").value = programName + " " + version
-    document.head.appendChild(Object.assign(document.createElement("link"), { rel: "icon", href: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='110'>※</text></svg>" }))
-
-    var editor = ace.edit("EditText")
-    editor.setTheme("ace/theme/chrome")
-    editor.getSession().on('change',
-        function () { textChanged = true; }
-    )
-
-    editor.focus()
-
-    var helpText =
-        "\n" +
-        " " + programName + " " + version + "\n" +
-        "\n" +
-        " This is local ace, the ace editor for local files. \n" +
-        "\n" +
-        " You can read, write and edit a text file from your browser.\n" +
-        "\n" +
-        " The tab size is set in url config using 'tab=number'.\n" +
-        "\n" +
-        " Editing functionality is provided by ace - https://ace.c9.io/#nav=about \n" +
-        " Default keys short cuts - https://github.com/ajaxorg/ace/wiki/Default-Keyboard-Shortcuts \n" +
-        "\n" +
-        " Enjoy"
-
-    function getUrlVars() {
-        var vars = {};
-        var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function (m, key, value) {
-            vars[key] = unescape(value)
-        })
-        return vars
-    }
-
-    function SetValuesInUrl(tabValue, editValue) {
-        var urlEdit = getUrlVars()['edit']
-        var urlTab = getUrlVars()['tab']
-
-        if ((urlEdit == null || urlEdit != editValue) || (urlTab == null || urlTab != tabValue)) {
-            var newURL = location.protocol + '//' + location.host + location.pathname + "#config?edit=" + editValue + "&tab=" + tabValue
-            location.assign(newURL)
-        }
-    }
-
-    var textChanged = false
-    var enableLogging = true
-    var FileHandle
-
-    function DebugLog(string) {
-        if (enableLogging) console.log(string)
-    }
-
-    function SetElementValueFromItemValue(elementName, itemName) {
-        var Element = document.getElementById(elementName)
-        var Item = document.getElementById(itemName)
-        if (localStorage.getItem(Item.value) != null) {
-            var newvalue = localStorage.getItem(Item.value)
-            editor.setValue(newvalue, -1); //Element.value = localStorage.getItem(Item.value)
-        }
-        DebugLog("getItem( " + Item.value + " )= " + editor.getValue())
-    }
-
-    function GetText() {
-        SetElementValueFromItemValue("EditText", "BufferName")
-        textChanged = true
-    }
-
-    function SaveText() {
-
-        if (textChanged) {
-            var BufferNameValue = document.getElementById("BufferName").value
-
-            try {
-                var newvalue = editor.getValue()
-                localStorage.setItem(BufferNameValue, newvalue)
-            }
-            catch (e) {
-                // if (e == QUOTA_EXCEEDED_ERR)  QuotaExceededError
-                if (e == QuotaExceededError) // IE error message?? ***FIXME***
-                {
-                    alert(e + 'Quota exceeded!')  //data wasn't successfully saved due to quota exceed so throw an error
-                }
-            }
-
-            DebugLog("setItem( " + BufferNameValue + ", " + editor.getValue() + " )")
-            textChanged = false
-        }
-
-    }
-
-    document.getElementById('ReadFile').addEventListener('click', (event) => {
-        readFileToBuffer()
-    });
-
-    document.getElementById('WriteFile').addEventListener('click', (event) => {
-        writeFileToBuffer()
-    });
-
-    document.getElementById('BufferName').addEventListener("keyup", ({ key }) => {
-        if (key === "Enter") {
-            // Do work
-            var filename = document.getElementById("BufferName").value
-
-
-            localStorage.setItem(filename, editor.getValue());
-
-            document.title = document.getElementById("BufferName").value
-            editor.focus()
-        }
-    })
-
-
-    function readFile(file) { // _readFileLegacy
-        return new Promise((resolve) => {
-            const reader = new FileReader();
-            reader.addEventListener('loadend', (e) => {
-                const text = e.srcElement.result;
-                resolve(text);
-            });
-            reader.readAsText(file);
-        });
-    }
-
-    const invisiblePicker = document.getElementById('invisiblePicker');
-    const invisibleDownload = document.getElementById('invisibleDownload');
-
-    function getFileLegacy() {
-        return new Promise((resolve, reject) => {
-            invisiblePicker.onchange = (e) => {
-                const file = invisiblePicker.files[0];
-                if (file) {
-                    resolve(file);
-                    return;
-                }
-                reject(new Error('AbortError'));
-            };
-            invisiblePicker.click();
-        });
-    };
-
-
-    async function readFileToBuffer() {
-
-        const file = await getFileLegacy();
-        if (!file) {
-            return
-        }
-        var filename = file.name
-
-        document.getElementById("BufferName").value = filename
-
-
-        textFromFileLoaded = await readFile(file);
-        editor.setValue(textFromFileLoaded, -1)
-
-
-        textFromFileLoaded = readFile(file);
-
-        localStorage.setItem(filename, textFromFileLoaded);
-        var tabValue = getUrlVars()['tab']
-        if (tabValue == null) tabValue = 4;
-        SetValuesInUrl(tabValue, document.getElementById("BufferName").value)
-        document.title = document.getElementById("BufferName").value
-        editor.focus()
-    }
-
-    async function writeFileToBuffer() {
-        filename = document.getElementById("BufferName").value || 'Untitled.txt';
-        const opts = { type: 'text/plain' };
-        contents = localStorage.getItem(filename)
-        const file = new File([contents], '', opts);
-        invisibleDownload.href = window.URL.createObjectURL(file);
-        invisibleDownload.setAttribute('download', filename);
-        invisibleDownload.click();
-    }
-
-
-    async function writeFileToBufferNewAPI() {
-        const opts = {
-            startIn: FileHandle,
-            suggestedName: document.getElementById("BufferName").value,
-        };
-        // create a new handle
-        const newHandle = await window.showSaveFilePicker(opts);
-
-        FileHandle = newHandle
-
-        // create a FileSystemWritableFileStream to write to
-        const writableStream = await newHandle.createWritable();
-
-        // write our file
-        await writableStream.write(editor.getValue());
-
-        // close the file and write the contents to disk.
-        await writableStream.close();
-
-        document.getElementById("BufferName").value = newHandle.name
-
-        var tabValue = getUrlVars()['tab']
-        if (tabValue == null) tabValue = 4;;
-        SetValuesInUrl(tabValue, document.getElementById("BufferName").value)
-        document.title = document.getElementById("BufferName").value
-        editor.focus()
-
-    }
-
-    // Check for the various File API support.
-    if ('chooseFileSystemEntries' in window ||
-        'showOpenFilePicker' in window) {
-        writeFileToBuffer = writeFileToBufferNewAPI
-    }
-
-    var FilenameElement = document.getElementById("BufferName")
-
-    var myEdit = getUrlVars()['edit']
-    if (myEdit != null) {
-        FilenameElement.value = myEdit
-        editor.setValue("", -1)
-
-        var newMode = myEdit.split('.').pop().toLowerCase()
-        var convert = { "js": "javascript", "xml": "xml", "gsl": "xml", "json": "json", "htm": "html", "html": "html", "ts": "typescript", "css": "css" }
-        if (convert[newMode] == null) convert[newMode] = "text"
-
-        editor.session.setMode("ace/mode/" + convert[newMode])
-        GetText()
-    }
-    else {
-        document.title = "local-ace";
-        FilenameElement.value = programName + version;
-        editor.setValue(helpText, -1);
-        textChanged = true;
-        SaveText();
-    }
-
-
+    var a = document.getElementById('HelpAbout'); //or grab it by tagname etc
+    var editValue = getUrlVars()['edit']
     var tabValue = getUrlVars()['tab']
-    if (tabValue == null) {
-        tabValue = 4  // default tab size
-    }
-
-    editor.session.setTabSize(tabValue)
-    editor.session.setUseWrapMode(true)
-
-    SetValuesInUrl(tabValue, document.getElementById("BufferName").value)
-
-    document.title = FilenameElement.value == "" ? document.title : programName
-
-    window.setInterval(SaveText, 1000)
-
-    // Check for the various File API support.
-    if (!('chooseFileSystemEntries' in window ||
-        'showOpenFilePicker' in window)) {
-        alert('Unable to read or write files, the file APIs are not supported in this browser.')
-    }
-
-
+    editValue = programName + version
+    a.href = location.protocol + '//' + location.host + location.pathname + "#config?edit=" + editValue + "&tab=" + tabValue
+    
 </script>
-
-
 
 </html>

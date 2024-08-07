@@ -1,0 +1,72 @@
+
+* {
+    margin: 0;
+    padding: 0;
+}
+
+#EditText {
+    position: absolute;
+    top: 36px;
+    right: 0;
+    bottom: 0;
+    left: 0;
+}
+
+input {
+    border: none;
+    font-size: 18px;
+    background: transparent;
+}
+
+.menu-input{
+    padding: 6px 0px 6px 8px;
+    border:none;
+    font-size: 12px;
+}
+
+
+#editor {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    font-size: 16px;
+}
+
+.ace_link_marker {
+    position: absolute;
+    border-bottom: 1px solid blue;
+}
+
+.unstyled-button {
+    border: none;
+    padding: 0;
+    background: none;
+}
+
+.menu-content {
+    display: none;
+    position: absolute;
+    background-color: white;
+    min-width: 75px;
+    z-index: 5;
+    border: 1px solid black;
+    left: 18px;
+    font-size: 12px;
+}
+
+.links {
+    color: black;
+    padding: 6px 0px 6px 8px;
+    text-decoration: none;
+    display: block;
+    font-size: 12px;
+}
+
+.links:hover {
+    background-color: black;
+    color: white;
+}
+
+
