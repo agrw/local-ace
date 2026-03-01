@@ -1,232 +1,255 @@
+'use strict';
 
-//
-// Service working setup
-//
-window.addEventListener('load', () => {
-    registerSW();
-});
+// ─── Constants ───────────────────────────────────────────────────────────────
 
+const PROGRAM_NAME = 'local-ace';
+const VERSION = '1.0.0';
+const AUTO_SAVE_INTERVAL_MS = 2000;
+const DEFAULT_TAB_SIZE = 4;
 
-async function registerSW() {
-    if ('serviceWorker' in navigator) {
-        try {
-            await navigator
-                .serviceWorker
-                .register('serviceworker.js');
-        }
-        catch (e) {
-            console.log('SW registration failed');
-        }
-    }
-}
-
-////////////////////////////////////////////////
-
-let menuContent = document.querySelector('.menu-content');
-
-window.onclick = function (event) {
-    if (event.target.matches('.unstyled-button') && menuContent.style.display=="" ) {
-        menuContent.style.display = "block";
-    } else if (!event.target.matches(".menu-input")) {
-        menuContent.style.display = "";
-    }
-}
-
-document.getElementById('ReadFile').addEventListener('click', (event) => {
-    localfile.openFile();
-});
-
-document.getElementById('WriteFile').addEventListener('click', (event) => {
-    localfile.saveFileAs(document.getElementById("FileName").value);
-});
-
-document.getElementById('FileName').addEventListener("keyup", ({ key }) => {
-    if (key === "Enter") {
-        // Do work
-        var filename = document.getElementById("FileName").value
-        localStorage.setItem(filename, editor.getValue());
-        document.title = filename
-        editor.focus()
-    }
-})
-
-
-localfile.setText = (val) => {
-    val = val || '';
-    editor.setValue(val, -1)
-
-    localStorage.setItem(localfile.file.name, val);
+const EXTENSION_MODE_MAP = {
+  js:   'javascript',
+  xml:  'xml',
+  gsl:  'xml',
+  json: 'json',
+  htm:  'html',
+  html: 'html',
+  ts:   'typescript',
+  css:  'css',
 };
 
-localfile.setModified = (val) => {
-    textChanged = true
+const HELP_TEXT = `
+This is a Progressive Web App of the Ace editor.
+Edit text files directly from your browser or desktop.
+
+─── Toolbar ───────────────────────────────────
+  ≡   Menu: tab size, word wrap, help
+  ↘   Open file
+  ↗   Save file
+  []  Filename (editable — press Enter to confirm)
+
+─── Tips ──────────────────────────────────────
+  • Tab size is also configurable via the URL: ?tab=4
+  • Keyboard shortcuts: https://github.com/ajaxorg/ace/wiki/Default-Keyboard-Shortcuts
+  • Works offline as a Progressive Web App
+
+${PROGRAM_NAME} ${VERSION}  —  Enjoy!
+`;
+
+// ─── Service Worker ──────────────────────────────────────────────────────────
+
+window.addEventListener('load', registerServiceWorker);
+
+async function registerServiceWorker() {
+  if (!('serviceWorker' in navigator)) return;
+  try {
+    await navigator.serviceWorker.register('serviceworker.js');
+  } catch (e) {
+    console.warn('Service worker registration failed:', e);
+  }
 }
 
-localfile.setFocus = (startAtTop) => {
-    editor.focus()
+// ─── Editor Setup ────────────────────────────────────────────────────────────
+
+const editor = ace.edit('EditText');
+editor.setTheme('ace/theme/chrome');
+editor.session.on('change', () => { textChanged = true; });
+
+let textChanged = false;
+let FileHandle;
+
+// ─── URL Utilities ───────────────────────────────────────────────────────────
+
+function getUrlParams() {
+  const vars = {};
+  window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, (m, key, value) => {
+    vars[key] = unescape(value);
+  });
+  return vars;
 }
 
-localfile.getText = () => {
-    return editor.getValue()
+function syncUrlParams(tabSize, filename) {
+  const params = getUrlParams();
+  if (params.edit !== filename || params.tab !== String(tabSize)) {
+    const newURL =
+      `${location.protocol}//${location.host}${location.pathname}` +
+      `#config?edit=${filename}&tab=${tabSize}`;
+    location.assign(newURL);
+  }
+}
+
+// ─── localStorage Helpers ────────────────────────────────────────────────────
+
+function loadFromStorage(filename) {
+  const saved = localStorage.getItem(filename);
+  if (saved !== null) {
+    editor.setValue(saved, -1);
+  }
+}
+
+function saveToStorage(filename, content) {
+  try {
+    localStorage.setItem(filename, content);
+  } catch (e) {
+    if (e.name === 'QuotaExceededError') {
+      alert('Storage quota exceeded — unable to save.');
+    } else {
+      console.error('Storage error:', e);
+    }
+  }
+}
+
+// ─── Save Logic ──────────────────────────────────────────────────────────────
+
+function autoSave() {
+  if (!textChanged) return;
+
+  const filename = filenameInput.value;
+  if (filename && filename !== `${PROGRAM_NAME} ${VERSION}`) {
+    localStorage.setItem('\lastfile/', filename);
+  }
+
+  saveToStorage(filename, editor.getValue());
+  textChanged = false;
+}
+
+// ─── File Mode Detection ─────────────────────────────────────────────────────
+
+function detectMode(filename) {
+  const ext = filename.split('.').pop().toLowerCase();
+  return EXTENSION_MODE_MAP[ext] || 'text';
+}
+
+// ─── UI Wiring ───────────────────────────────────────────────────────────────
+
+const menuContent = document.querySelector('.menu-content');
+const filenameInput = document.getElementById('FileName');
+
+// Menu toggle
+window.addEventListener('click', (event) => {
+  if (event.target.closest('.menu-btn > button') && menuContent.style.display === '') {
+    menuContent.style.display = 'block';
+  } else if (!event.target.matches('.menu-input') && !event.target.closest('.menu-content')) {
+    menuContent.style.display = '';
+  }
+});
+
+// Help / About: load help text into editor
+document.getElementById('HelpAbout').addEventListener('click', (e) => {
+  e.preventDefault();
+  menuContent.style.display = '';
+  filenameInput.value = `${PROGRAM_NAME} ${VERSION}`;
+  editor.setValue(HELP_TEXT, -1);
+  editor.session.setMode('ace/mode/text');
+  document.title = `${PROGRAM_NAME} ${VERSION}`;
+  textChanged = true;
+  editor.focus();
+});
+
+// Read / write buttons
+document.getElementById('ReadFile').addEventListener('click', () => localfile.openFile());
+document.getElementById('WriteFile').addEventListener('click', () => {
+  localfile.saveFileAs(filenameInput.value);
+});
+
+// Filename input: Enter to save & switch mode
+filenameInput.addEventListener('keyup', ({ key }) => {
+  if (key !== 'Enter') return;
+  const filename = filenameInput.value;
+  saveToStorage(filename, editor.getValue());
+  document.title = filename;
+  editor.session.setMode(`ace/mode/${detectMode(filename)}`);
+  editor.focus();
+});
+
+// Filename change: load from storage
+filenameInput.addEventListener('change', () => {
+  const filename = filenameInput.value;
+  loadFromStorage(filename);
+  textChanged = true;
+  syncUrlParams(tabSizeInput.value, filename);
+});
+
+// Tab size change
+const tabSizeInput = document.getElementById('TabNumber');
+tabSizeInput.addEventListener('change', () => {
+  const size = parseInt(tabSizeInput.value, 10);
+  editor.session.setTabSize(size);
+  syncUrlParams(size, filenameInput.value);
+});
+
+// Word wrap toggle
+document.getElementById('WrapToggle').addEventListener('change', (e) => {
+  editor.session.setUseWrapMode(e.target.checked);
+});
+
+// ─── localfile callbacks ─────────────────────────────────────────────────────
+
+localfile.setText = (val = '') => {
+  editor.setValue(val, -1);
+  saveToStorage(localfile.file.name, val);
 };
+
+localfile.setModified = () => { textChanged = true; };
+localfile.setFocus = () => { editor.focus(); };
+localfile.getText = () => editor.getValue();
 
 localfile.setFile = (fileHandle) => {
-    if (fileHandle && fileHandle.name) {
-        localfile.file.handle = fileHandle;
-        localfile.file.name = fileHandle.name;
-
-        document.getElementById("FileName").value = fileHandle.name
-
-    } else {
-        localfile.file.handle = null;
-        localfile.file.name = fileHandle;
-        var fileName = document.getElementById('filePicker').files[0].name;
-        document.getElementById("FileName").value = fileName
-        localfile.file.name = fileHandle;
-    }
+  if (fileHandle && fileHandle.name) {
+    localfile.file.handle = fileHandle;
+    localfile.file.name = fileHandle.name;
+    filenameInput.value = fileHandle.name;
+  } else {
+    localfile.file.handle = null;
+    localfile.file.name = fileHandle;
+    const legacyName = document.getElementById('filePicker').files[0]?.name;
+    filenameInput.value = legacyName || fileHandle;
+    localfile.file.name = fileHandle;
+  }
 };
 
-var programName = "local-ace";
-var version = " v.0.0.52";
-document.title = programName;
-var helpText = `
-This is a Progressive Web App of ace editor.  
-With this app you can edit a text file from your browser 
-or desktop. 
+// ─── Initialization ──────────────────────────────────────────────────────────
 
-Top Menu: ≡ ↘ ↗  []
+(function init() {
+  document.title = PROGRAM_NAME;
 
- ≡  click to select: 
-     install - option to install on desktop.
-      help    - this help info, click again to resume editing.
- ↘  to read a file,
- ↗  to write a file.
- [] filename text box 
+  // Set help/about link
+  const params = getUrlParams();
+  const helpLink = document.getElementById('HelpAbout');
+  helpLink.href =
+    `${location.protocol}//${location.host}${location.pathname}` +
+    `#config?edit=${PROGRAM_NAME} ${VERSION}&tab=${params.tab}`;
 
-The tab size is set in url config using 'tab=number'. 
-    
-Editing functionality is provided by https://ace.c9.io/#nav=about  
-using see https://github.com/ajaxorg/ace/wiki/Default-Keyboard-Shortcuts 
-about keys short cuts.
+  // Restore last file or show help
+  let currentFile = params.edit || localStorage.getItem('\lastfile/');
 
-Enjoy
-`
-
-var editor = ace.edit("EditText")
-editor.setTheme("ace/theme/chrome")
-editor.getSession().on('change',
-    function () { textChanged = true; }
-)
-
-function getUrlVars() {
-    var vars = {};
-    var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function (m, key, value) {
-        vars[key] = unescape(value)
-    })
-    return vars
-}
-
-function SetValuesInUrl(tabValue, editValue) {
-    var urlEdit = getUrlVars()['edit']
-    var urlTab = getUrlVars()['tab']
-
-    if ((urlEdit == null || urlEdit != editValue) || (urlTab == null || urlTab != tabValue)) {
-        var newURL = location.protocol + '//' + location.host + location.pathname + "#config?edit=" + editValue + "&tab=" + tabValue
-        location.assign(newURL)
-    }
-}
-
-var textChanged = false
-var enableLogging = false
-var FileHandle
-
-function DebugLog(string) {
-    if (enableLogging) console.log(string)
-}
-
-function SetElementValueFromItemValue(elementName, itemName) {
-    var Element = document.getElementById(elementName)
-    var Item = document.getElementById(itemName)
-    if (localStorage.getItem(Item.value) != null) {
-        var newvalue = localStorage.getItem(Item.value)
-        editor.setValue(newvalue, -1); //Element.value = localStorage.getItem(Item.value)
-    }
-    DebugLog("getItem( " + Item.value + " )= " + editor.getValue())
-}
-
-function GetText() {
-    SetElementValueFromItemValue("EditText", "FileName")
-    textChanged = true
-}
-
-function SaveText() {
-    if (textChanged) {
-        var FileNameValue = document.getElementById("FileName").value
-        
-        if (FilenameElement.value  != programName + version ) {
-            localStorage.setItem("\lastfile/", FilenameElement.value);
-        }
-        try {
-            var newvalue = editor.getValue()
-            localStorage.setItem(FileNameValue, newvalue)
-        }
-        catch (e) {
-            // if (e == QUOTA_EXCEEDED_ERR)  QuotaExceededError
-            if (e == QuotaExceededError) // IE error message?? ***FIXME***
-            {
-                alert(e + 'Quota exceeded!')  //data wasn't successfully saved due to quota exceed so throw an error
-            }
-        }
-
-        textChanged = false
-    }
-}
-
-
-
-var FilenameElement = document.getElementById("FileName")
-
-var myEdit = getUrlVars()['edit']
-
-if (myEdit == null) {
-    myEdit = localStorage.getItem("\lastfile/")
-}
-
-if (myEdit != null) {
-    FilenameElement.value = myEdit
-    editor.setValue("", -1)
-
-    var newMode = myEdit.split('.').pop().toLowerCase()
-    var convert = { "js": "javascript", "xml": "xml", "gsl": "xml", "json": "json", "htm": "html", "html": "html", "ts": "typescript", "css": "css" }
-    if (convert[newMode] == null) convert[newMode] = "text"
-
-    editor.session.setMode("ace/mode/" + convert[newMode])
-    GetText()
-}
-else {
-    document.title = "local-ace";
-    FilenameElement.value = programName + version;
-    editor.setValue(helpText, -1);
+  if (currentFile) {
+    filenameInput.value = currentFile;
+    editor.setValue('', -1);
+    editor.session.setMode(`ace/mode/${detectMode(currentFile)}`);
+    loadFromStorage(currentFile);
+  } else {
+    document.title = PROGRAM_NAME;
+    filenameInput.value = `${PROGRAM_NAME} ${VERSION}`;
+    editor.setValue(HELP_TEXT, -1);
     textChanged = true;
-    SaveText();
-}
+    autoSave();
+  }
 
-var tabValue = getUrlVars()['tab']
-if (tabValue == null) {
-    tabValue = 4  // default tab size
-}
+  // Apply tab size
+  const tabSize = parseInt(params.tab, 10) || DEFAULT_TAB_SIZE;
+  editor.session.setTabSize(tabSize);
+  editor.session.setUseWrapMode(true);
 
-editor.session.setTabSize(tabValue)
-editor.session.setUseWrapMode(true)
+  tabSizeInput.value = tabSize;
+  document.getElementById('WrapToggle').checked = true;
 
+  syncUrlParams(tabSize, filenameInput.value);
 
-document.getElementById('TabNumber').value = tabValue
-document.getElementById('WrapToggle').checked = true
+  document.title = filenameInput.value || PROGRAM_NAME;
 
-SetValuesInUrl(tabValue, document.getElementById("FileName").value)
+  // Auto-save every 2 seconds
+  setInterval(autoSave, AUTO_SAVE_INTERVAL_MS);
 
-document.title = FilenameElement.value == "" ? document.title : programName
-
-window.setInterval(SaveText, 2000)
-
-editor.focus()
+  editor.focus();
+})();
